@@ -37,7 +37,7 @@ class Weather(Producer):
         #
         #
         super().__init__(
-            "weather", # TODO: Come up with a better topic name
+            "com.udacity.dsnano.ghartner.project1.weather", # TODO: Come up with a better topic name
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )
@@ -79,7 +79,29 @@ class Weather(Producer):
         # specify the Avro schemas and verify that you are using the correct Content-Type header.
         #
         #
-        logger.info("weather kafka proxy integration incomplete - skipping")
+        #logger.info("weather kafka proxy integration incomplete - skipping")
+        headers={
+            "Content-type" : "application/vnd.kafka.avro.v2+json"
+        }
+        obj={
+            "records" : [
+                {
+                    "value" : {
+                        "temperature":self.temp,
+                        "status":self.status.name
+                    }
+                }
+            ],
+            "value_schema" : json.dumps(Weather.value_schema) 
+        }
+        logger.info(json.dumps(obj))
+        
+        resp = requests.post("{rest_proxy_url}/topics/{topic_name}".format(
+                                rest_proxy_url=self.rest_proxy_url,
+                                topic_name=self.topic_name),
+                            json.dumps(obj),
+                            headers=headers)
+        
         #resp = requests.post(
         #    #
         #    #
@@ -103,7 +125,7 @@ class Weather(Producer):
         #        }
         #    ),
         #)
-        #resp.raise_for_status()
+        resp.raise_for_status()
 
         logger.debug(
             "sent weather data to kafka, temp: %s, status: %s",

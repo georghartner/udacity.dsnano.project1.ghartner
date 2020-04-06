@@ -39,5 +39,6 @@ class Station:
             self.dir_b = status_dict
 
     def process_message(self, json_data):
+        print("processing " + json_data)
         """Handles arrival and turnstile messages"""
         self.num_turnstile_entries = json_data["COUNT"]

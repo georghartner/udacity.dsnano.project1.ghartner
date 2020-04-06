@@ -9,8 +9,7 @@ import topic_check
 
 logger = logging.getLogger(__name__)
 
-
-KSQL_URL = "http://localhost:8088"
+KSQL_URL = "http://192.168.68.109:8088"
 
 #
 # TODO: Complete the following KSQL statements.
@@ -21,27 +20,32 @@ KSQL_URL = "http://localhost:8088"
 #       Make sure to cast the COUNT of station id to `count`
 #       Make sure to set the value format to JSON
 
-# docker run -it confluentinc/cp-ksql-cli http://localhost:8088
+# docker run -it confluentinc/cp-ksql-cli http://192.168.68.109:8088
 
 KSQL_STATEMENT = """
 CREATE TABLE turnstile (
-    ???
+    station_id INTEGER,
+    station_name VARCHAR,
+    line VARCHAR,
+    num_entries INTEGER
 ) WITH (
-    ???
+    KAFKA_TOPIC='com.udacity.dsnano.ghartner.project1.turnstile',
+    VALUE_FORMAT='AVRO',
+    KEY='station_id'
 );
 
 CREATE TABLE turnstile_summary
-WITH (???) AS
-    ???
+ AS
+    select station_id,station_name,COUNT(station_id) AS COUNT from turnstile group by (station_id,station_name);
 """
 
 
 def execute_statement():
     """Executes the KSQL statement against the KSQL API"""
-    if topic_check.topic_exists("TURNSTILE_SUMMARY") is True:
-        return
+    #if topic_check.topic_exists("TURNSTILE_SUMMARY") is True:
+    #    return
 
-    logging.debug("executing ksql statement...")
+    logging.info("executing ksql statement...")
 
     resp = requests.post(
         f"{KSQL_URL}/ksql",
